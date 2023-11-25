@@ -1,31 +1,46 @@
+from flask import Flask, request, render_template, jsonify, session
 from boggle import Boggle
-from flask import Flask, render_template, session, request, redirect
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "secret"
+app.config["SECRET_KEY"] = "fdfgkjtjkkg45yfdb"
 
 boggle_game = Boggle()
 
 
-@app.route('/')
-def create_board():
+@app.route("/")
+def homepage():
+    """Show board."""
+
     board = boggle_game.make_board()
-    session['my_board'] = board
-    session['guess'] = []
-    return render_template('home-page.html', board=board)
+    session['board'] = board
+    highscore = session.get("highscore", 0)
+    nplays = session.get("nplays", 0)
+
+    return render_template("index.html", board=board,
+                           highscore=highscore,
+                           nplays=nplays)
 
 
-@app.route('/boggle')
-def game_begin():
-    print(session.get('guess'))
-    board = session.get('my_board')
-    return render_template('boggle.html', board=board)
+@app.route("/check-word")
+def check_word():
+    """Check if word is in dictionary."""
+
+    word = request.args["word"]
+    board = session["board"]
+    response = boggle_game.check_valid_word(board, word)
+
+    return jsonify({'result': response})
 
 
-@ app.route('/submit', methods=['post'])
-def submit():
-    pick = request.form['guess']
-    guess_list = session.get('guess')
-    guess_list.append(pick)
-    session['guess'] = guess_list
-    return redirect('/boggle')
+@app.route("/post-score", methods=["POST"])
+def post_score():
+    """Receive score, update nplays, update high score if appropriate."""
+
+    score = request.json["score"]
+    highscore = session.get("highscore", 0)
+    nplays = session.get("nplays", 0)
+
+    session['nplays'] = nplays + 1
+    session['highscore'] = max(score, highscore)
+
+    return jsonify(brokeRecord=score > highscore)

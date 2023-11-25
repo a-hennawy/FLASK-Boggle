@@ -1,9 +1,0 @@
-{%extends 'base.html'%} {%block content%}
-<form action="/boggle">
-  <button>Start Game!</button>
-</form>
-{%endblock%} {%block game_init%}
-<script>
-  let game = new BoggleGame("boggle", 60);
-</script>
-{%endblock%}
