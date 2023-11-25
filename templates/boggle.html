@@ -1,0 +1,15 @@
+{%extends 'base.html'%} {%block title%}Boggle Game{%endblock%} {%block content%}
+<p>
+  High Score:
+  <b>{{ highscore }}</b>
+  in {{ nplays }} plays
+</p>
+
+<p>Score: <b class="score">0</b> Seconds Left: <b class="timer"></b></p>
+
+<form action="/submit" method="post" class="guess-word">
+  <label for="guess">Enter your guess:</label>
+  <input type="text" name="guess" id="guess" />
+  <button>submit</button>
+</form>
+{%endblock%}
